@@ -1,0 +1,43 @@
+{
+  "name": "real-time-event-ticket-booking-system",
+  "version": "1.0.0",
+  "description": "A scalable backend for a real-time event ticket booking platform built with Node.js, Express.js, MongoDB, Redis, Socket.IO, BullMQ, Razorpay, and JWT.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drishti-gupta0704/real-time-event-ticket-booking-system.git"
+  },
+  "keywords": [
+    "nodejs",
+    "expressjs",
+    "mongodb",
+    "redis",
+    "socketio",
+    "bullmq",
+    "razorpay",
+    "jwt",
+    "backend"
+  ],
+  "author": "Drishti Gupta",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/drishti-gupta0704/real-time-event-ticket-booking-system/issues"
+  },
+  "homepage": "https://github.com/drishti-gupta0704/real-time-event-ticket-booking-system#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

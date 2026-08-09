@@ -10,3 +10,4 @@ router.post("/",authMiddleware,adminMiddleware,createEvent);
 router.get("/", getAllEvents);
 
 module.exports = router;
+

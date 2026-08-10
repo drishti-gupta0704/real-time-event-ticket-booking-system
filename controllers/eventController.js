@@ -82,6 +82,7 @@ const createEvent = async (req, res) => {
 };
 
 
+
 const getAllEvents = async (req, res) => {
 
     try {
@@ -131,8 +132,45 @@ const getEventById = async (req, res) => {
     }
 };
 
+
+
+const searchEvents = async (req, res) => {
+
+    try {
+
+        const { name } = req.query;
+        if (!name) {
+            return res.status(400).json({
+                message: "Search name is required"
+            });
+        }
+
+        const events = await Event.find({
+            title: {
+                $regex: name,
+                $options: "i"
+            }
+        }).sort({ date: 1 });
+
+        res.status(200).json({
+            success: true,
+            count: events.length,
+            events
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+
 module.exports = {
     createEvent,
     getAllEvents,
-    getEventById
+    getEventById,
+    searchEvents
 };

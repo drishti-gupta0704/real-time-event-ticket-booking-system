@@ -32,7 +32,8 @@ seatSchema.index(
     {
         event: 1,
         seatNumber: 1
-    },
+    }
+    ,
 
     {
         unique: true

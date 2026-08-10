@@ -168,9 +168,95 @@ const searchEvents = async (req, res) => {
 };
 
 
+
+const updateEvent = async (req, res) => {
+
+    try {
+
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found"
+            });
+        }
+
+        const {
+            title,
+            description,
+            venue,
+            city,
+            date,
+            time,
+            category,
+            price,
+            totalSeats
+        } = req.body;
+
+
+    
+        if (title !== undefined) event.title = title;
+        if (description !== undefined) event.description = description;
+        if (venue !== undefined) event.venue = venue;
+        if (city !== undefined) event.city = city;
+        if (date !== undefined) event.date = date;
+        if (time !== undefined) event.time = time;
+        if (category !== undefined) event.category = category;
+        if (price !== undefined) event.price = price;
+
+        if (totalSeats !== undefined) {
+
+            if (totalSeats <= 0) {
+                return res.status(400).json({
+                    message: "Total seats must be greater than 0"
+                });
+            }
+
+            const bookedSeats =
+                event.totalSeats - event.availableSeats;
+
+            if (totalSeats < bookedSeats) {
+                return res.status(400).json({
+                    message: "Total seats cannot be less than booked seats"
+                });
+            }
+
+            event.totalSeats = totalSeats;
+            event.availableSeats = totalSeats - bookedSeats;
+        }
+
+
+        if (event.price < 0) {
+            return res.status(400).json({
+                message: "Price cannot be negative"
+            });
+        }
+
+
+        await event.save();
+
+
+        res.status(200).json({
+            success: true,
+            message: "Event updated successfully",
+            event
+        });
+
+    } 
+    
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+
+
 module.exports = {
     createEvent,
     getAllEvents,
     getEventById,
-    searchEvents
+    searchEvents,
+    updateEvent
 };

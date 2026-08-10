@@ -1,6 +1,6 @@
 
 const express = require("express");
-const { createEvent ,  getAllEvents, getEventById, searchEvents} = require("../controllers/eventController");
+const { createEvent ,  getAllEvents , getEventById , searchEvents, updateEvent, deleteEvent} = require("../controllers/eventController");
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
@@ -10,6 +10,8 @@ router.post("/",authMiddleware,adminMiddleware,createEvent);
 router.get("/", getAllEvents);
 router.get("/search", searchEvents);
 router.get("/:id", getEventById);
+router.put("/:id", authMiddleware, adminMiddleware, updateEvent );
+router.delete( "/:id", authMiddleware, adminMiddleware, deleteEvent );
 
 
 module.exports = router;

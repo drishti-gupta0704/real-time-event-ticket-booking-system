@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const { connectRedis } = require("./config/redis");
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const seatRoutes = require("./routes/seatRoutes");
@@ -11,6 +12,8 @@ dotenv.config();
 connectDB();
 const app = express();
 app.use(express.json());
+connectRedis();
+
 app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);

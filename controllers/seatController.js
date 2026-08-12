@@ -156,8 +156,50 @@ const getSeatById = async (req, res) => {
 
 
 
+
+const { redisClient } = require("../config/redis");
+
+const lockSeat = async (req, res) => {
+    try {
+        const { eventId, seatId } = req.body;
+        const userId = req.user.id;
+        const key = `ticket:seat:${eventId}:${seatId}`;
+
+        const result = await redisClient.set(
+            key,
+            userId,
+            {
+                NX: true,
+                EX: 300
+            }
+        );
+
+        if (result === null) {
+            return res.status(409).json({
+                message: "Seat is already locked"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Seat locked for 5 minutes"
+        });
+
+    } 
+    
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
+
+
+
 module.exports = {
     generateSeats,
     getEventSeats,
-    getSeatById
+    getSeatById,
+    lockSeat
 };

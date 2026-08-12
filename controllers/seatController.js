@@ -1,6 +1,7 @@
 
 const Seat = require("../models/Seat");
 const Event = require("../models/Event");
+const { redisClient } = require("../config/redis");
 
 const generateSeats = async (req, res) => {
 
@@ -156,43 +157,100 @@ const getSeatById = async (req, res) => {
 
 
 
+const lockSeats = async (req, res) => {
 
-const { redisClient } = require("../config/redis");
-
-const lockSeat = async (req, res) => {
     try {
-        const { eventId, seatId } = req.body;
-        const userId = req.user.id;
-        const key = `ticket:seat:${eventId}:${seatId}`;
+        const { eventId } = req.params;
+        const { seatIds } = req.body;
 
-        const result = await redisClient.set(
-            key,
-            userId,
-            {
-                NX: true,
-                EX: 300
-            }
-        );
-
-        if (result === null) {
-            return res.status(409).json({
-                message: "Seat is already locked"
+        // Validating input
+        if (!seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
+            return res.status(400).json({
+                message: "seatIds must be a non-empty array"
             });
         }
 
+
+        // Finding seats in MongoDB
+        const seats = await Seat.find({
+            _id: { $in: seatIds },
+            event: eventId
+        });
+
+
+        // Check all seats exist
+        if (seats.length !== seatIds.length) {
+            return res.status(404).json({
+                message: "One or more seats not found"
+            });
+        }
+
+
+        // Check MongoDB status
+        const alreadyBooked = seats.filter(
+            seat => seat.status === "booked"
+        );
+
+        if (alreadyBooked.length > 0) {
+            return res.status(400).json({
+                message: "One or more seats are already booked"
+            });
+        }
+
+
+        // Check Redis locks
+        for (const seat of seats) {
+
+            const lockKey = `seat_lock:${eventId}:${seat._id}`;
+            const existingLock = await redisClient.get(lockKey);
+
+            if (existingLock) {
+                return res.status(409).json({
+                    message: `Seat ${seat.seatNumber} is currently locked`
+                });
+            }
+        }
+
+
+        // Create Redis locks
+        for (const seat of seats) {
+
+            const lockKey = `seat_lock:${eventId}:${seat._id}`;
+
+            await redisClient.set(
+                lockKey,
+                req.user._id.toString(),
+                {
+                    EX: 300
+                }
+            );
+        }
+
+
         res.status(200).json({
             success: true,
-            message: "Seat locked for 5 minutes"
+            message: "Seats locked successfully",
+            expiresIn: 300,
+            seats: seats.map(seat => ({
+                seatId: seat._id,
+                seatNumber: seat.seatNumber,
+                status: "locked"
+            }))
         });
 
     } 
     
+    
     catch (error) {
+
         res.status(500).json({
             message: error.message
         });
+
     }
 };
+
+
 
 
 
@@ -201,5 +259,5 @@ module.exports = {
     generateSeats,
     getEventSeats,
     getSeatById,
-    lockSeat
+    lockSeats
 };

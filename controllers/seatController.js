@@ -128,5 +128,6 @@ const getEventSeats = async (req, res) => {
 
 
 module.exports = {
-    generateSeats
+    generateSeats,
+    getEventSeats
 };

@@ -7,6 +7,7 @@ const { connectRedis } = require("./config/redis");
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const seatRoutes = require("./routes/seatRoutes");
+const seatLockRoutes = require("./routes/seatLockRoutes");
 
 dotenv.config();
 connectDB();
@@ -18,6 +19,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/seats", seatRoutes);
+app.use("/api/seats", seatLockRoutes);
 
 app.get("/", (req, res) => {
     res.send("Event Ticket Booking API is running");

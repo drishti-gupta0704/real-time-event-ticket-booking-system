@@ -125,9 +125,39 @@ const getEventSeats = async (req, res) => {
 };
 
 
+const getSeatById = async (req, res) => {
+
+    try {
+
+        const { seatId } = req.params;
+        const seat = await Seat.findById(seatId);
+
+        if (!seat) {
+            return res.status(404).json({
+                message: "Seat not found"
+            });
+        }
+
+
+        res.status(200).json({
+            success: true,
+            seat
+        });
+
+    } 
+    
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
 
 
 module.exports = {
     generateSeats,
-    getEventSeats
+    getEventSeats,
+    getSeatById
 };

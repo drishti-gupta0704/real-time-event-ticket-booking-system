@@ -1,6 +1,6 @@
 
 const express = require("express");
-const {lockSeats } = require("../controllers/seatLockController");
+const {lockSeats } = require("../controllers/seatController");
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 

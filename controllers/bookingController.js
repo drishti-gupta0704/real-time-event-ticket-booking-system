@@ -1,0 +1,153 @@
+
+const Booking = require("../models/Booking");
+const Seat = require("../models/Seat");
+const Event = require("../models/Event");
+const { redisClient } = require("../config/redis");
+
+
+const createBooking = async (req, res) => {
+
+    try {
+        const { eventId } = req.params;
+        const { seatIds } = req.body;
+        const userId = req.user._id;
+
+        if (!seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
+            return res.status(400).json({
+                message: "seatIds must be a non-empty array"
+            });
+        }
+
+
+    
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found"
+            });
+        }
+
+
+        const seats = await Seat.find({
+            _id: { $in: seatIds },
+            event: eventId
+        });
+
+
+        if (seats.length !== seatIds.length) {
+            return res.status(404).json({
+                message: "One or more seats not found"
+            });
+        }
+
+
+        const bookedSeats = seats.filter(
+            seat => seat.status === "booked"
+        );
+
+        if (bookedSeats.length > 0) {
+            return res.status(409).json({
+                message: "One or more seats are already booked"
+            });
+
+        }
+
+
+    
+        for (const seat of seats) {
+            const lockKey = `seat_lock:${eventId}:${seat._id}`;
+            const lockOwner = await redisClient.get(lockKey);
+
+
+            
+            if (!lockOwner) {
+                return res.status(409).json({
+                    message: `Seat ${seat.seatNumber} is not locked`
+                });
+
+            }
+
+
+      
+            if (lockOwner !== userId.toString()) {
+                return res.status(403).json({
+                    message: `Seat ${seat.seatNumber} is locked by another user`
+                });
+
+            }
+
+        }
+
+
+       
+        const totalAmount = seats.length * event.price;
+        const booking = await Booking.create({
+
+            user: userId,
+            event: eventId,
+            seats: seatIds,
+            totalAmount,
+            status: "pending",
+            paymentStatus: "pending"
+
+        });
+
+
+       
+        await Seat.updateMany(
+            {
+                _id: { $in: seatIds }
+            },
+
+            {
+                $set: {
+                    status: "booked"
+                }
+            }
+        );
+
+
+   
+        for (const seat of seats) {
+            const lockKey = `seat_lock:${eventId}:${seat._id}`;
+            await redisClient.del(lockKey);
+
+        }
+
+
+        await Event.findByIdAndUpdate(
+            eventId,
+            {
+                $inc: {
+                    availableSeats: -seatIds.length
+                }
+            }
+        );
+
+
+        res.status(201).json({
+
+            success: true,
+            message: "Booking created successfully",
+            booking
+
+        });
+
+
+    } 
+    
+    catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
+module.exports = {
+    createBooking
+};

@@ -2,6 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+dotenv.config();
 const connectDB = require("./config/db");
 const { connectRedis } = require("./config/redis");
 const authRoutes = require("./routes/authRoutes");
@@ -11,7 +12,7 @@ const seatLockRoutes = require("./routes/seatLockRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 
-dotenv.config();
+
 connectDB();
 const app = express();
 app.use(express.json());

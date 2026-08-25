@@ -3,6 +3,7 @@ const Booking = require("../models/Booking");
 const Seat = require("../models/Seat");
 const Event = require("../models/Event");
 const { redisClient } = require("../config/redis");
+const razorpay = require("../config/razorpay");
 
 
 const createBooking = async (req, res) => {
@@ -256,6 +257,32 @@ const cancelBooking = async (req, res) => {
                 message: "Only confirmed bookings can be cancelled"
             });
         }
+
+      
+
+        
+        if (booking.paymentStatus === "paid") {
+             if (!booking.razorpayPaymentId) {
+                return res.status(400).json({
+                message: "Payment ID not found, refund cannot be processed"
+               });
+               }
+
+        const refund = await razorpay.payments.refund(
+
+        booking.razorpayPaymentId,
+        {
+            amount: booking.totalAmount * 100
+        }
+        );
+
+        console.log("Refund created:", refund.id);
+
+        booking.paymentStatus = "refunded";
+        }
+
+
+
 
         const event = await Event.findById(booking.event);
 

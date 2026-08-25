@@ -223,9 +223,98 @@ const getBookingById = async (req, res) => {
 
 };
 
+const cancelBooking = async (req, res) => {
+
+    try {
+
+        const { bookingId } = req.params;
+        const booking = await Booking.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).json({
+                message: "Booking not found"
+            });
+        }
+
+
+        if (booking.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to cancel this booking"
+            });
+        }
+
+
+        if (booking.status === "cancelled") {
+            return res.status(400).json({
+                message: "Booking is already cancelled"
+            });
+        }
+
+
+        if (booking.status !== "confirmed") {
+            return res.status(400).json({
+                message: "Only confirmed bookings can be cancelled"
+            });
+        }
+
+        const event = await Event.findById(booking.event);
+
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found"
+            });
+        }
+
+        await Seat.updateMany(
+            {
+                _id: { $in: booking.seats }
+            },
+            {
+                $set: {
+                    status: "available"
+                }
+            }
+        );
+
+        await Event.findByIdAndUpdate(
+            booking.event,
+            {
+                $inc: {
+                    availableSeats: booking.seats.length
+                }
+            }
+        );
+
+        booking.status = "cancelled";
+
+        await booking.save();
+
+
+        res.status(200).json({
+
+            success: true,
+            message: "Booking cancelled successfully",
+            booking
+
+        });
+
+
+    } 
+    
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
 
 module.exports = {
     createBooking,
     getMyBookings,
-    getBookingById
+    getBookingById,
+    cancelBooking
 };

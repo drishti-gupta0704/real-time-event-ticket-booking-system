@@ -2,6 +2,7 @@
 const crypto = require("crypto");
 const razorpay = require("../config/razorpay");
 const Booking = require("../models/Booking");
+const sendEmail = require("../utils/sendEmail");
 
 
 
@@ -120,11 +121,54 @@ const verifyPayment = async (req, res) => {
 
         }
 
-        booking.paymentStatus = "paid";
-        booking.status = "confirmed";
-        booking.razorpayPaymentId = razorpay_payment_id;
 
-        await booking.save();
+
+
+       booking.paymentStatus = "paid";
+       booking.status = "confirmed";
+       booking.razorpayPaymentId = razorpay_payment_id;
+
+       await booking.save();
+
+       populatedBooking = await Booking.findById(booking._id)
+       .populate("user", "name email")
+       .populate("event", "title venue city date time price")
+       .populate("seats", "seatNumber");
+
+       const seatNumbers = populatedBooking.seats
+       .map(seat => seat.seatNumber)
+       .join(", ");
+
+       await sendEmail(
+        populatedBooking.user.email,
+        "Booking Confirmed - Ticket Booking System",
+       `
+        <h2>Booking Confirmed 🎉</h2>
+
+        <p>Hello ${populatedBooking.user.name},</p>
+
+        <p>Your booking has been successfully confirmed.</p>
+
+        <h3>Event Details</h3>
+
+        <p><strong>Event:</strong> ${populatedBooking.event.title}</p>
+        <p><strong>Venue:</strong> ${populatedBooking.event.venue}</p>
+        <p><strong>City:</strong> ${populatedBooking.event.city}</p>
+        <p><strong>Date:</strong> ${new Date(populatedBooking.event.date).toLocaleDateString()}</p>
+        <p><strong>Time:</strong> ${populatedBooking.event.time}</p>
+
+        <h3>Booking Details</h3>
+
+        <p><strong>Booking ID:</strong> ${populatedBooking._id}</p>
+        <p><strong>Seats:</strong> ${seatNumbers}</p>
+        <p><strong>Total Amount:</strong> ₹${populatedBooking.totalAmount}</p>
+        <p><strong>Payment Status:</strong> Paid</p>
+
+        <p>Thank you for booking with us! </p>
+    `
+);
+
+
 
 
         res.status(200).json({

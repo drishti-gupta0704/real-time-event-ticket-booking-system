@@ -9,6 +9,7 @@ const eventRoutes = require("./routes/eventRoutes");
 const seatRoutes = require("./routes/seatRoutes");
 const seatLockRoutes = require("./routes/seatLockRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 dotenv.config();
 connectDB();
@@ -22,6 +23,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/seats", seatRoutes);
 app.use("/api/seats", seatLockRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.get("/", (req, res) => {
     res.send("Event Ticket Booking API is running");

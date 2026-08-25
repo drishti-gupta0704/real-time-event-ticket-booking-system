@@ -180,6 +180,52 @@ const getMyBookings = async (req, res) => {
 };
 
 
+
+const getBookingById = async (req, res) => {
+
+    try {
+        const { bookingId } = req.params;
+        const booking = await Booking.findById(bookingId)
+            .populate("event");
+
+
+        if (!booking) {
+
+            return res.status(404).json({
+                message: "Booking not found"
+            });
+
+        }
+
+
+        if (booking.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to view this booking"
+            });
+
+        }
+
+
+        res.status(200).json({
+            success: true,
+            booking
+
+        });
+
+    }
+    
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
 module.exports = {
-    createBooking
+    createBooking,
+    getMyBookings,
+    getBookingById
 };

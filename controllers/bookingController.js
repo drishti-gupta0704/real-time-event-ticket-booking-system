@@ -224,9 +224,24 @@ const getBookingById = async (req, res) => {
 
 };
 
+
+
+
 const getAllBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find()
+
+        const { status, paymentStatus } = req.query;
+        const filter = {};
+
+        if (status) {
+            filter.status = status;
+        }
+
+        if (paymentStatus) {
+            filter.paymentStatus = paymentStatus;
+        }
+
+        const bookings = await Booking.find(filter)
             .populate("user", "name email")
             .populate("event", "title venue city date time price")
             .populate("seats", "seatNumber status")
@@ -241,12 +256,14 @@ const getAllBookings = async (req, res) => {
     } 
     
     catch (error) {
+
         res.status(500).json({
             message: error.message
         });
 
     }
 };
+
 
 
 

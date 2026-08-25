@@ -148,6 +148,38 @@ const createBooking = async (req, res) => {
 };
 
 
+
+const getMyBookings = async (req, res) => {
+
+    try {
+
+        const bookings = await Booking.find({
+            user: req.user._id
+        })
+        .populate("event")
+        .sort({ createdAt: -1 });
+
+
+        res.status(200).json({
+
+            success: true,
+            count: bookings.length,
+            bookings
+
+        });
+
+    } 
+    
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
 module.exports = {
     createBooking
 };

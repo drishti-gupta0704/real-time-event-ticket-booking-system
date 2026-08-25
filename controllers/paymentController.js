@@ -40,6 +40,9 @@ const createPaymentOrder = async (req, res) => {
             receipt: booking._id.toString()
         });
 
+        booking.razorpayOrderId = order.id;
+        await booking.save();  
+
 
         res.status(200).json({
 

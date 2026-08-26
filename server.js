@@ -17,8 +17,11 @@ const seatLockRoutes = require("./routes/seatLockRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const emailRoutes = require("./routes/emailRoutes");
+const checkExpiredLocks = require("./seatLockExpiry");
 
 const app = express();
+connectRedis();
+setInterval(checkExpiredLocks, 10000);
 
 const server = http.createServer(app);
 initializeSocket(server);
@@ -41,7 +44,7 @@ app.get("/", (req, res) => {
     res.send("Event Ticket Booking API is running");
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

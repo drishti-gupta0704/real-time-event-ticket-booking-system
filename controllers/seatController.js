@@ -244,7 +244,7 @@ const lockSeats = async (req, res) => {
     }
 
 
-    
+
 
         const io = getIO();
         io.emit("seatsLocked", {

@@ -20,6 +20,15 @@ const createBooking = async (req, res) => {
         }
 
 
+        
+        const uniqueSeatIds = [...new Set(seatIds)];
+        if (uniqueSeatIds.length !== seatIds.length) {
+           return res.status(400).json({
+           message: "Duplicate seat IDs are not allowed"
+       });
+       
+    }
+
     
         const event = await Event.findById(eventId);
 

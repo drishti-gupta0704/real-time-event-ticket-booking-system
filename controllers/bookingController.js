@@ -47,13 +47,14 @@ const createBooking = async (req, res) => {
             });
           }
 
-          
+
 
 
         if (seatIds.length > event.availableSeats) {
              return res.status(400).json({
                 message: "Not enough seats available"
          });
+         
          }
 
 

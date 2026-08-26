@@ -214,21 +214,37 @@ const lockSeats = async (req, res) => {
 
 
         // Create Redis locks
-        for (const seat of seats) {
+        // for (const seat of seats) {
 
-            const lockKey = `seat_lock:${eventId}:${seat._id}`;
+        //     const lockKey = `seat_lock:${eventId}:${seat._id}`;
 
-            await redisClient.set(
-                lockKey,
-                req.user._id.toString(),
-                {
-                    EX: 300
-                }
-            );
+        //     await redisClient.set(
+        //         lockKey,
+        //         req.user._id.toString(),
+        //         {
+        //             EX: 300
+        //         }
+        //     );
+        // }
+
+     // Create Redis locks
+       for (const seat of seats) {
+       const lockKey = `seat_lock:${eventId}:${seat._id}`;
+
+       await redisClient.set(
+        lockKey,
+        req.user._id.toString(),
+        {
+            EX: 300
         }
+      );
+
+       seat.status = "locked";
+       await seat.save();
+    }
 
 
-
+    
 
         const io = getIO();
         io.emit("seatsLocked", {

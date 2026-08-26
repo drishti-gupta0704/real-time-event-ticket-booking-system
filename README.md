@@ -3,10 +3,11 @@
 
 A backend system for event ticket booking built with **Node.js and Express.js**, featuring **JWT-based authentication, admin event management, MongoDB database integration, Redis-based 5-minute seat locking, real-time seat availability updates using Socket.IO, ticket booking and booking history, Razorpay payment order creation and signature verification, automatic email booking confirmation, booking cancellation with refunds, Swagger API documentation, and deployment on Render**
 
+
 See the complete project documentation:
- **[View Detailed Documentation](./docs/PROJECT_DOCUMENTATION.md)**
+ **[Click to view detailed documentation](./docs/PROJECT_DOCUMENTATION.md)**
 
-
+--- 
 ## Features
 
 - User Registration & Login

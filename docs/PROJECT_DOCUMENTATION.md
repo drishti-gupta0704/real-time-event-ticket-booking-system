@@ -9,6 +9,109 @@ The system supports user authentication, event management, real-time seat lockin
 
 ---
 
+##        Architechture Diagram 
+
+                    USER
+                     │
+                     ▼
+              Register / Login
+                     │
+                     ▼
+                View Events
+                     │
+                     ▼
+               Select Event
+                     │
+                     ▼
+               View Seats
+                     │
+                     ▼
+             Select Available Seats
+                     │
+                     ▼
+            Lock Seats in Redis
+                (5 minutes)
+                     │
+                     ▼
+              Create Booking
+                     │
+                     ▼
+          Create Razorpay Order
+                     │
+                     ▼
+             Make Payment
+                     │
+                     ▼
+        Verify Razorpay Signature
+                     │
+             ┌───────┴───────┐
+             │               │
+          SUCCESS          FAILED
+             │               │
+             ▼               ▼
+       Booking Confirmed   Payment Failed
+             │
+             ▼
+       Seats → Booked
+             │
+             ▼
+      Email Confirmation
+             │
+             ▼
+       Booking History
+
+
+Cancellation flow: 
+
+
+             Confirmed Booking
+                     │
+                     ▼
+              Cancel Booking
+                     │
+                     ▼
+             Payment Paid?
+                /       \
+              YES        NO
+               │          │
+               ▼          │
+        Razorpay Refund   │
+               │          │
+               └────┬─────┘
+                    ▼
+             Seats → Available
+                    │
+                    ▼
+       Event Available Seats ↑
+                    │
+                    ▼
+          Booking → Cancelled
+
+
+Real-time seat flow :
+
+
+                  User selects seat
+                           │
+                           ▼
+                     Redis Lock
+                           │
+                           ▼
+            Socket.IO → Notify users
+                           │
+                           ▼
+                  Seat → LOCKED
+                           │
+                    ┌──────┴──────┐
+                    │             │
+                    ▼             ▼
+             Payment Success   5 min expires
+                    │             │
+                    ▼             ▼
+              Seat → BOOKED   Seat → AVAILABLE
+
+---          
+
 ## 2. System Workflow
 
 ```text
@@ -288,103 +391,3 @@ Environment variables are used for sensitive credentials such as:
 
 ---
 
-## 15. Architechture Diagram 
-
-                    USER
-                     │
-                     ▼
-              Register / Login
-                     │
-                     ▼
-                View Events
-                     │
-                     ▼
-               Select Event
-                     │
-                     ▼
-               View Seats
-                     │
-                     ▼
-             Select Available Seats
-                     │
-                     ▼
-            Lock Seats in Redis
-                (5 minutes)
-                     │
-                     ▼
-              Create Booking
-                     │
-                     ▼
-          Create Razorpay Order
-                     │
-                     ▼
-             Make Payment
-                     │
-                     ▼
-        Verify Razorpay Signature
-                     │
-             ┌───────┴───────┐
-             │               │
-          SUCCESS          FAILED
-             │               │
-             ▼               ▼
-       Booking Confirmed   Payment Failed
-             │
-             ▼
-       Seats → Booked
-             │
-             ▼
-      Email Confirmation
-             │
-             ▼
-       Booking History
-
-
-Cancellation flow: 
-
-
-             Confirmed Booking
-                     │
-                     ▼
-              Cancel Booking
-                     │
-                     ▼
-             Payment Paid?
-                /       \
-              YES        NO
-               │          │
-               ▼          │
-        Razorpay Refund   │
-               │          │
-               └────┬─────┘
-                    ▼
-             Seats → Available
-                    │
-                    ▼
-       Event Available Seats ↑
-                    │
-                    ▼
-          Booking → Cancelled
-
-
-Real-time seat flow :
-
-
-                  User selects seat
-                           │
-                           ▼
-                     Redis Lock
-                           │
-                           ▼
-            Socket.IO → Notify users
-                           │
-                           ▼
-                  Seat → LOCKED
-                           │
-                    ┌──────┴──────┐
-                    │             │
-                    ▼             ▼
-             Payment Success   5 min expires
-                    │             │
-                    ▼             ▼
-              Seat → BOOKED   Seat → AVAILABLE

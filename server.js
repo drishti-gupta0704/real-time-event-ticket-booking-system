@@ -1,5 +1,8 @@
 
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -13,9 +16,33 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 
+const app = express();
+
+
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*"
+    }
+});
+
+
+io.on("connection", (socket) => {
+
+    console.log("Socket connected:", socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("Socket disconnected:", socket.id);
+    });
+
+});
+
+
 
 connectDB();
-const app = express();
+
+
 app.use(express.json());
 connectRedis();
 
@@ -34,6 +61,10 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// });
+
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

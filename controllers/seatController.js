@@ -2,6 +2,7 @@
 const Seat = require("../models/Seat");
 const Event = require("../models/Event");
 const { redisClient } = require("../config/redis");
+const { getIO } = require("../config/socket");
 
 const generateSeats = async (req, res) => {
 
@@ -225,6 +226,21 @@ const lockSeats = async (req, res) => {
                 }
             );
         }
+
+
+
+
+        const io = getIO();
+        io.emit("seatsLocked", {
+        eventId,
+        seats: seats.map(seat => ({
+        seatId: seat._id,
+        seatNumber: seat.seatNumber,
+        status: "locked"
+             }))
+                 });
+
+
 
 
         res.status(200).json({

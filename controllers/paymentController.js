@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const razorpay = require("../config/razorpay");
 const Booking = require("../models/Booking");
 const sendEmail = require("../utils/sendEmail");
-
+const { getIO } = require("../config/socket");
 
 
 const createPaymentOrder = async (req, res) => {
@@ -130,6 +130,21 @@ const verifyPayment = async (req, res) => {
 
        await booking.save();
 
+
+
+       
+       const io = getIO();
+
+       io.emit("seatsBooked", {
+       eventId: booking.event.toString(),
+       seats: booking.seats.map(seatId => ({
+       seatId: seatId.toString(),
+       status: "booked"
+         }))
+           });
+
+
+
        populatedBooking = await Booking.findById(booking._id)
        .populate("user", "name email")
        .populate("event", "title venue city date time price")
@@ -143,7 +158,7 @@ const verifyPayment = async (req, res) => {
         populatedBooking.user.email,
         "Booking Confirmed - Ticket Booking System",
        `
-        <h2>Booking Confirmed 🎉</h2>
+        <h2>Booking Confirmed </h2>
 
         <p>Hello ${populatedBooking.user.name},</p>
 

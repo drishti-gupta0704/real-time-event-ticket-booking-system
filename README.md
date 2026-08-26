@@ -36,27 +36,28 @@ A backend system for event ticket booking built with **Node.js and Express.js**,
 - Deployment : Render
 
 ## API Documentation
-[API Documentation — Swagger](https://real-time-event-ticket-booking-system.onrender.com/api-docs)
+[Click for API Documentation — Swagger](https://real-time-event-ticket-booking-system.onrender.com/api-docs)
+
 ## Live Backend
-[View Live Demo](https://real-time-event-ticket-booking-system.onrender.com)
+[Click to View Live Demo](https://real-time-event-ticket-booking-system.onrender.com)
 
 
-## Installation
+# Installation
 
-### 1. Clone the repository
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/drishti-gupta0704/real-time-event-ticket-booking-system.git
 cd real-time-event-ticket-booking-system
 ```
 
-### 2. Install dependencies
+#### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Create a `.env` file
+#### 3. Create a `.env` file
 
 Create a file named `.env` in the root directory and add:
 
@@ -79,7 +80,7 @@ EMAIL_PASSWORD=your_email_app_password
 
 Replace the placeholder values with your own credentials.
 
-### 4. Start the server
+#### 4. Start the server
 
 ```bash
 node server.js
@@ -91,7 +92,7 @@ The server will run at:
 http://localhost:4000
 ```
 
-### 5. API Documentation
+#### 5. API Documentation
 
 Open Swagger:
 

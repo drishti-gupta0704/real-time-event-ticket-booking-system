@@ -10,6 +10,13 @@ const connectDB = require("./config/db");
 const { connectRedis } = require("./config/redis");
 const { initializeSocket } = require("./config/socket");
 
+const app = express();
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
+
+
+
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const seatRoutes = require("./routes/seatRoutes");
@@ -19,7 +26,11 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const checkExpiredLocks = require("./seatLockExpiry");
 
-const app = express();
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
+
 connectRedis();
 setInterval(checkExpiredLocks, 10000);
 

@@ -11,7 +11,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: "http://localhost:4000"
+                url: "https://real-time-event-ticket-booking-system.onrender.com"
             }
         ]
     },

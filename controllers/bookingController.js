@@ -20,7 +20,7 @@ const createBooking = async (req, res) => {
         }
 
 
-        
+
         const uniqueSeatIds = [...new Set(seatIds)];
         if (uniqueSeatIds.length !== seatIds.length) {
            return res.status(400).json({
@@ -37,6 +37,15 @@ const createBooking = async (req, res) => {
                 message: "Event not found"
             });
         }
+
+
+        if (seatIds.length > event.availableSeats) {
+             return res.status(400).json({
+                message: "Not enough seats available"
+         });
+         }
+
+
 
 
         const seats = await Seat.find({
